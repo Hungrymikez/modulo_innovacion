@@ -5,8 +5,8 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 
-const supabase = require('./db').default;
-const filesRouter = require('./routes/files');
+const supabase = require('./src/db').default;
+const filesRouter = require('./src/routes/files');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
