@@ -1,6 +1,7 @@
 // public/js/app.js
 document.addEventListener('DOMContentLoaded', function() {
-    const API_BASE = '';
+    const API_BASE = window.location.origin;
+
 
     let files = [];
     let projects = [];
@@ -40,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
             option2.textContent = project.name;
             searchProject.appendChild(option2);
         });
-    }
+    };
 
     // Update counts
     function updateCounts(originalCount, modifiedCount) {
@@ -49,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsCount.textContent = `${totalCount} archivo${totalCount !== 1 ? 's' : ''} encontrado${totalCount !== 1 ? 's' : ''}`;
         document.getElementById('originalCount').textContent = originalCount;
         document.getElementById('modifiedCount').textContent = modifiedCount;
-    }
+    };
 
     // Open modal
     document.getElementById('uploadBtn').addEventListener('click', function() {
@@ -94,6 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Upload submit
+// Upload submit
     document.getElementById('uploadForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const fileInput = document.getElementById('fileInput');
@@ -132,5 +134,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 body: formData
             });
+
             if (!resp.ok) throw new Error('Error subiendo archivo');
-            await
+
+            const data = await resp.json();
+            alert('Archivo subido correctamente');
+            location.reload();
+
+        } catch (err) {
+            console.error(err);
+            alert('Error al subir el archivo');
+        } finally {
+            document.getElementById('uploadText').classList.remove('d-none');
+            document.getElementById('uploadSpinner').classList.add('d-none');
+        }
+    });
+});
