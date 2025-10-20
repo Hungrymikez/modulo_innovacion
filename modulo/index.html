@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Archivos por Proyecto</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="navbar navbar-expand-lg sticky-top position-relative">
+            <div class="sena-navbar container-fluid ">
+                <!-- Logo / Brand -->
+                <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
+                <img src="img/sena-logo.svg" alt="Logo SENA" class="me-2 sena-logo">
+                GestionSena
+                </a>
+
+                <!-- Bloque de botones alineado a la izquierda -->
+                <div class="botonesOpci position-absolute ">
+                <a class="logoApp sena-logo fw-bold d-flex align-items-center" href="#"><i class="bi bi-bullseye"></i>MODULO INNOVACION</a>
+                <button id="openConf" class="btn sena-btn-outline">
+                    <i class="bi bi-gear"></i> Configuración
+                </button>
+                <!-- <div class="dropdown">
+                    <button class="btn sena-btn-outline dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-download"></i> Exportar
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#">CSV</a></li>
+                    <li><a class="dropdown-item" href="#">XLSX</a></li>
+                    <li><a class="dropdown-item" href="#">PDF</a></li>
+                    </ul>
+                </div> -->
+                </div>
+
+                <!-- Links -->
+                <div class="collapse navbar-collapse" id="topNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                    <a class="nav-link active" href="#">
+                        <i class="bi bi-bullseye"></i> Metas
+                    </a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="bi bi-list-check"></i> Oferta
+                    </a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="bi bi-handshake"></i> Convenios
+                    </a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="bi bi-mortarboard"></i> Egresados
+                    </a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="bi bi-journal-text"></i> Gestión Curricular
+                    </a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="bi bi-people"></i> ECCL
+                    </a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="bi bi-lightbulb"></i> Innovación
+                    </a>
+                    </li>
+                </ul>
+                </div>
+
+                <div class="collapse navbar-collapse">
+                <button id="user" class="btn sena-btn-1">
+                    <i class="bi bi-person-circle"></i> Perfil
+                </button>
+                <div class="dropdown">
+                    <button class="btn cerrarsec" data-bs-toggle="dropdown">
+                    <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                    </button>
+                </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8 p-3">
+                    <h1 class="display-5 fw-bold">Gestor de Archivos por Proyecto</h1>
+                    <p class="lead">Sistema para gestionar versiones de archivos Excel con metadatos y búsqueda avanzada</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <div class="bg-black bg-opacity-25 rounded-pill px-4 py-2 d-inline-block">
+                        <span class="fw-bold" id="totalFiles">0 archivos</span><!--IMPORTANTE-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Action Buttons -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <button class="btn btn-success me-3" id="uploadBtn">
+                    <i class="fas fa-upload me-2"></i>Subir Nuevo Archivo
+                </button>
+                <button class="btn btn-secondary" id="clearFiltersBtn">
+                    <i class="fas fa-sync-alt me-2"></i>Limpiar Filtros
+                </button>
+            </div>
+        </div>
+
+        <!-- Upload Modal -->
+        <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="uploadModalLabel">Subir Nuevo Archivo</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="uploadForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="projectSelect" class="form-label">Categoria del Proyecto</label>
+                                    <select class="form-select" id="projectSelect" required>
+                                        <option value="">Seleccione un proyecto</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="reportDate" class="form-label">Fecha de Reporte *</label>
+                                    <input type="date" class="form-control" id="reportDate" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="sgpsCode" class="form-label">Código SGPS</label>
+                                    <input type="text" class="form-control" id="sgpsCode" placeholder="Código SGPS">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="studyCenterName" class="form-label">Nombre del Centro de Estudio</label>
+                                    <input type="text" class="form-control" id="studyCenterName" placeholder="Nombre del centro de estudio">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3"> <!-- corregir-->
+                                    <label for="regional" class="form-label">Regional del Centro de Estudio</label>
+                                    <input type="text" class="form-control" id="regional" placeholder="Regional">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="projectResponsibles" class="form-label">Responsables del Proyecto</label>
+                                    <input type="text" class="form-control" id="projectResponsibles" placeholder="Responsables del proyecto (opcional)">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="responsible" class="form-label">Responsable *</label>
+                                    <input type="text" class="form-control" id="responsible" placeholder="Nombre del responsable" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="progress" class="form-label">Etapa / Avance (%) *</label>
+                                    <input type="number" class="form-control" id="progress" min="0" max="100" placeholder="Porcentaje de avance" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="observations" class="form-label">Observaciones Clave</label>
+                                <textarea class="form-control" id="observations" rows="3" placeholder="Ingrese observaciones importantes sobre este reporte"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fileInput" class="form-label">Archivo Excel *</label>
+                                <div class="border border-2 border-dashed rounded-3 p-4 text-center" id="dropZone">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">Arrastra y suelta tu archivo aquí o</p>
+                                    <input type="file" class="form-control d-none" id="fileInput" accept=".xlsx,.xls" required>
+                                    <button type="button" class="btn btn-outline-primary" id="selectFileBtn">Seleccionar archivo</button>
+                                    <div class="mt-3" id="fileNameDisplay"></div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-success" id="submitUpload">
+                                    <span id="uploadText">Subir Archivo</span>
+                                    <span id="uploadSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"></span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Versions Modal -->
+        <div class="modal fade" id="versionsModal" tabindex="-1" aria-labelledby="versionsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title" id="versionsModalLabel">Versiones del Archivo</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="versionsLoading" class="text-center py-4 d-none">
+                            <div class="spinner-border text-info" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p class="mt-3">Cargando versiones...</p>
+                        </div>
+                        <div id="versionsContent">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Versión</th>
+                                            <th>Fecha de Subida</th>
+                                            <th>Fecha de Reporte</th>
+                                            <th>Responsable</th>
+                                            <th>Avance</th>
+                                            <th>Tamaño</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="versionsTableBody">
+                                        <!-- Las versiones se cargarán aquí -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Update File Modal -->
+        <div class="modal fade" id="updateFileModal" tabindex="-1" aria-labelledby="updateFileModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title" id="updateFileModalLabel">Actualizar Archivo</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="updateFileForm">
+                            <input type="hidden" id="updateFileId">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="updateProjectSelect" class="form-label">Categoria del Proyecto</label>
+                                    <select class="form-select" id="updateProjectSelect" required>
+                                        <option value="">Seleccione un proyecto</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="updateReportDate" class="form-label">Fecha de Reporte *</label>
+                                    <input type="date" class="form-control" id="updateReportDate" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="updateSgpsCode" class="form-label">Código SGPS</label>
+                                    <input type="text" class="form-control" id="updateSgpsCode" placeholder="Código SGPS">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="updateStudyCenterName" class="form-label">Nombre del Centro de Estudio</label>
+                                    <input type="text" class="form-control" id="updateStudyCenterName" placeholder="Nombre del centro de estudio">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="updateRegional" class="form-label">Regional del Centro de Estudio</label>
+                                    <input type="text" class="form-control" id="updateRegional" placeholder="Regional">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="updateProjectResponsibles" class="form-label">Responsables del Proyecto</label>
+                                    <input type="text" class="form-control" id="updateProjectResponsibles" placeholder="Responsables del proyecto (opcional)">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="updateResponsible" class="form-label">Responsable *</label>
+                                    <input type="text" class="form-control" id="updateResponsible" placeholder="Nombre del responsable" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="updateProgress" class="form-label">Etapa / Avance (%) *</label>
+                                    <input type="number" class="form-control" id="updateProgress" min="0" max="100" placeholder="Porcentaje de avance" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="updateModificationReason" class="form-label">Razón de la Modificación</label>
+                                <textarea class="form-control" id="updateModificationReason" rows="2" placeholder="Explique por qué está modificando este archivo"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="updateObservations" class="form-label">Observaciones Clave</label>
+                                <textarea class="form-control" id="updateObservations" rows="3" placeholder="Ingrese observaciones importantes sobre este reporte"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="updateFileInput" class="form-label">Nuevo Archivo Excel *</label>
+                                <div class="border border-2 border-dashed rounded-3 p-4 text-center" id="updateDropZone">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">Arrastra y suelta tu archivo aquí o</p>
+                                    <input type="file" class="form-control d-none" id="updateFileInput" accept=".xlsx,.xls" required>
+                                    <button type="button" class="btn btn-outline-primary" id="updateSelectFileBtn">Seleccionar archivo</button>
+                                    <div class="mt-3" id="updateFileNameDisplay"></div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-warning" id="submitUpdate">
+                                    <span id="updateText">Actualizar Archivo</span>
+                                    <span id="updateSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"></span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="deleteConfirmModalLabel">Confirmar Eliminación</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>¿Está seguro de que desea eliminar este archivo?</p>
+                        <div class="alert alert-warning">
+                            <strong>Advertencia:</strong> Esta acción no se puede deshacer.
+                        </div>
+                        <div id="deleteFileInfo"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-danger" id="confirmDelete">
+                            <i class="fas fa-trash me-2"></i>Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Búsqueda Avanzada</h3>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="searchTerm" class="form-label">Búsqueda General</label>
+                        <input type="text" class="form-control search-box" id="searchTerm" placeholder="Buscar en todos los campos...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="searchProject" class="form-label">Proyecto</label>
+                        <select class="form-select" id="searchProject">
+                            <option value="">Todos los proyectos</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="searchSgpsCode" class="form-label">Código SGPS</label>
+                        <input type="text" class="form-control" id="searchSgpsCode" placeholder="Código SGPS">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="searchStudyCenter" class="form-label">Centro de Estudio</label>
+                        <input type="text" class="form-control" id="searchStudyCenter" placeholder="Nombre del centro">
+                    </div>
+                </div>
+                <div class="row g-3 mt-2">
+                    <div class="col-md-3">
+                        <label for="searchRegional" class="form-label">Regional</label>
+                        <input type="text" class="form-control" id="searchRegional" placeholder="Regional">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="searchDateFrom" class="form-label">Fecha Desde</label>
+                        <input type="date" class="form-control" id="searchDateFrom">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="searchDateTo" class="form-label">Fecha Hasta</label>
+                        <input type="date" class="form-control" id="searchDateTo">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="searchFileType" class="form-label">Tipo de Archivo</label>
+                        <select class="form-select" id="searchFileType">
+                            <option value="">Todos los archivos</option>
+                            <option value="original">Archivos Originales</option>
+                            <option value="modified">Archivos Modificados</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12 text-end">
+                        <button class="btn btn-primary" id="searchBtn">
+                            <i class="fas fa-search me-2"></i>Buscar
+                            <span id="searchSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="card mb-5">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="mb-0">Resultados de Búsqueda</h3>
+                    <span class="badge bg-primary" id="resultsCount">0 archivos encontrados</span>
+                </div>
+                <ul class="nav nav-tabs" id="fileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="current-tab" data-bs-toggle="tab" data-bs-target="#current-files" type="button" role="tab" aria-controls="current-files" aria-selected="false">
+                            <i class="fas fa-clock me-2"></i>Archivos Actuales
+                            <span class="badge bg-info ms-2" id="currentCount">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="modified-tab" data-bs-toggle="tab" data-bs-target="#modified-files" type="button" role="tab" aria-controls="modified-files" aria-selected="false">
+                            <i class="fas fa-edit me-2"></i>Archivos Modificados
+                            <span class="badge bg-warning ms-2" id="modifiedCount">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="original-tab" data-bs-toggle="tab" data-bs-target="#original-files" type="button" role="tab" aria-controls="original-files" aria-selected="true">
+                            <i class="fas fa-file-alt me-2"></i>Archivos Originales
+                            <span class="badge bg-success ms-2" id="originalCount">0</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="fileTabsContent">
+                    <!-- Original Files Tab -->
+                    <div class="tab-pane fade show active" id="original-files" role="tabpanel" aria-labelledby="original-tab">
+                        <!-- Botón de búsqueda específico para archivos originales -->
+                        <div class="row mb-3">
+                            <div class="col-md-12 text-end">
+                                <button class="btn btn-outline-primary btn-sm" id="searchOriginalBtn">
+                                    <i class="fas fa-search me-2"></i>Buscar en Archivos Originales
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="loadingSpinnerOriginal" class="text-center py-5 d-none">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p class="mt-3">Procesando solicitud...</p>
+                        </div>
+                        
+                        <div id="noResultsOriginal" class="text-center py-5 d-none">
+                            <i class="fas fa-file-excel fa-4x text-muted mb-3"></i>
+                            <h4>No se encontraron archivos originales</h4>
+                            <p class="text-muted">Prueba con diferentes términos de búsqueda o ajusta los filtros.</p>
+                        </div>
+                        
+                        <div id="resultsTableOriginal" class="table-responsive table-scroll">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Proyecto</th>
+                                        <th>Código SGPS</th>
+                                        <th>Centro de Estudio</th>
+                                        <th>Regional</th>
+                                        <th>Fecha Reporte</th>
+                                        <th>Responsable</th>
+                                        <th>Avance</th>
+                                        <th>Archivo</th>
+                                        <th>Tamaño</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="originalFilesTableBody">
+                                    <!-- Los resultados se cargarán aquí dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Modified Files Tab -->
+                    <div class="tab-pane fade" id="modified-files" role="tabpanel" aria-labelledby="modified-tab">
+                        <!-- Botón de búsqueda específico para archivos modificados -->
+                        <div class="row mb-3">
+                            <div class="col-md-12 text-end">
+                                <button class="btn btn-outline-warning btn-sm" id="searchModifiedBtn">
+                                    <i class="fas fa-search me-2"></i>Buscar en Archivos Modificados
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="loadingSpinnerModified" class="text-center py-5 d-none">
+                            <div class="spinner-border text-warning" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p class="mt-3">Procesando solicitud...</p>
+                        </div>
+                        
+                        <div id="noResultsModified" class="text-center py-5 d-none">
+                            <i class="fas fa-edit fa-4x text-muted mb-3"></i>
+                            <h4>No se encontraron archivos modificados</h4>
+                            <p class="text-muted">Prueba con diferentes términos de búsqueda o ajusta los filtros.</p>
+                        </div>
+                        
+                        <div id="resultsTableModified" class="table-responsive table-scroll">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Proyecto</th>
+                                        <th>Código SGPS</th>
+                                        <th>Centro de Estudio</th>
+                                        <th>Regional</th>
+                                        <th>Fecha Reporte</th>
+                                        <th>Responsable</th>
+                                        <th>Avance</th>
+                                        <th>Archivo</th>
+                                        <th>Tamaño</th>
+                                        <th>Razón Modificación</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modifiedFilesTableBody">
+                                    <!-- Los resultados se cargarán aquí dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Current Files Tab -->
+                    <div class="tab-pane fade" id="current-files" role="tabpanel" aria-labelledby="current-tab">
+                        <!-- Controles de filtro para archivos actuales -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <label for="currentDateFrom" class="form-label">Fecha Desde</label>
+                                <input type="date" class="form-control" id="currentDateFrom">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="currentDateTo" class="form-label">Fecha Hasta</label>
+                                <input type="date" class="form-control" id="currentDateTo">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="currentLimit" class="form-label">Mostrar últimos</label>
+                                <select class="form-select" id="currentLimit">
+                                    <option value="10">10 archivos</option>
+                                    <option value="20" selected>20 archivos</option>
+                                    <option value="50">50 archivos</option>
+                                    <option value="100">100 archivos</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary" id="applyCurrentFilters">
+                                    <i class="fas fa-filter me-2"></i>Aplicar Filtros
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="loadingSpinnerCurrent" class="text-center py-5 d-none">
+                            <div class="spinner-border text-info" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p class="mt-3">Procesando solicitud...</p>
+                        </div>
+                        
+                        <div id="noResultsCurrent" class="text-center py-5 d-none">
+                            <i class="fas fa-clock fa-4x text-muted mb-3"></i>
+                            <h4>No se encontraron archivos actuales</h4>
+                            <p class="text-muted">Prueba con diferentes filtros de fecha o ajusta los parámetros.</p>
+                        </div>
+                        
+                        <div id="resultsTableCurrent" class="table-responsive table-scroll">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Proyecto</th>
+                                        <th>Código SGPS</th>
+                                        <th>Centro de Estudio</th>
+                                        <th>Regional</th>
+                                        <th>Fecha Reporte</th>
+                                        <th>Responsable</th>
+                                        <th>Avance</th>
+                                        <th>Archivo</th>
+                                        <th>Tamaño</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="currentFilesTableBody">
+                                    <!-- Los resultados se cargarán aquí -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefits Section -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="bg-primary bg-opacity-10 rounded-4 p-5">
+                    <h2 class="text-center mb-5 fw-bold">Beneficios del Sistema</h2>
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <div class="card card-hover h-100">
+                                <div class="card-body text-center">
+                                    <div class="benefit-icon bg-success bg-opacity-25 text-success">
+                                        <i class="fas fa-history"></i>
+                                    </div>
+                                    <h5 class="card-title">Historial Completo</h5>
+                                    <p class="card-text">Mantiene todas las versiones de cada archivo, permitiendo comparar cambios y revertir si es necesario.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card card-hover h-100">
+                                <div class="card-body text-center">
+                                    <div class="benefit-icon bg-primary bg-opacity-25 text-primary">
+                                        <i class="fas fa-search"></i>
+                                    </div>
+                                    <h5 class="card-title">Búsqueda Inteligente</h5>
+                                    <p class="card-text">Busca por múltiples criterios sin necesidad de abrir los archivos Excel, ahorrando tiempo y esfuerzo.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card card-hover h-100">
+                                <div class="card-body text-center">
+                                    <div class="benefit-icon bg-danger bg-opacity-25 text-danger">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <h5 class="card-title">Seguridad Garantizada</h5>
+                                    <p class="card-text">Los cambios en los archivos Excel no afectan la integridad del sistema ni la capacidad de búsqueda.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card card-hover h-100">
+                                <div class="card-body text-center">
+                                    <div class="benefit-icon bg-warning bg-opacity-25 text-warning">
+                                        <i class="fas fa-dollar-sign"></i>
+                                    </div>
+                                    <h5 class="card-title">Bajo Costo de Mantenimiento</h5>
+                                    <p class="card-text">Independiente del formato de los archivos Excel, reduciendo costos de actualización y mantenimiento.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer-sena mt-auto">
+        <div class="footer-top container row py-4 mx-auto">
+            <div class="col-md-4 mb-3">
+                <img src="img/sena-logo.svg" alt="Logo SENA" class="footer-logo mb-2">
+                <p class="footer-description">
+                Servicio Nacional de Aprendizaje – SENA. Módulo de Metas. 
+                Todas las funciones, cursos y servicios oficiales están regulados y certificados.
+                </p>
+            </div>
+            <div class="col-md-2 mb-3">
+                <h6 class="footer-title">Enlaces útiles</h6>
+                <ul class="footer-links list-unstyled">
+                <li><a href="#">Inicio</a></li>
+                <li><a href="#">Oferta educativa</a></li>
+                <li><a href="#">Certificados</a></li>
+                <li><a href="#">Ayuda / Soporte</a></li>
+                <li><a href="#">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3 mb-3">
+                <h6 class="footer-title">Contacto</h6>
+                <ul class="contact-info list-unstyled">
+                <li><i class="bi bi-geo-alt-fill me-2"></i>Calle 57 No. 8 ‐ 69 Bogotá D.C., Colombia</li>
+                <li><i class="bi bi-telephone-fill me-2"></i>+(57) 601 736 60 60</li>
+                <li><i class="bi bi-phone me-2"></i>01 8000 910 270</li>
+                <li><i class="bi bi-clock-fill me-2"></i>Lun-Vie: 7:00‐19:00 ‐ Sáb: 8:00‐13:00</li>
+                </ul>
+            </div>
+            <div class="col-md-3 mb-3">
+                <h6 class="footer-title">Síguenos</h6>
+                <div class="social-links">
+                    <a href="#" class="me-2"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="me-2"><i class="bi bi-x"></i></a>
+                    <a href="#" class="me-2"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="me-2"><i class="bi bi-youtube"></i></a>
+                    <a href="#" class="me-2"><i class="bi bi-linkedin"></i></a>
+                </div>
+
+            </div>
+        </div>
+        <div class="footer-bottom py-3 text-center">
+            <small>© 2025 Servicio Nacional de Aprendizaje – SENA. Todos los derechos reservados.</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const API_BASE = '';
+
+            let files = [];
+            let projects = [];
+
+            // Initialize UI elements
+            const projectSelect = document.getElementById('projectSelect');
+            const searchProject = document.getElementById('searchProject');
+            const totalFiles = document.getElementById('totalFiles');
+            const resultsCount = document.getElementById('resultsCount');
+
+            // Load initial data
+            Promise.all([
+                fetch(`${API_BASE}/api/files/projects`).then(r => r.json()),
+                fetch(`${API_BASE}/api/files?showModified=false`).then(r => r.json()),
+                fetch(`${API_BASE}/api/files?showModified=true`).then(r => r.json())
+            ]).then(([proj, originalFiles, modifiedFiles]) => {
+                projects = proj;
+                files = [...originalFiles, ...modifiedFiles];
+                populateProjects(projects);
+                updateCounts(originalFiles.length, modifiedFiles.length);
+                displayFiles(originalFiles, modifiedFiles);
+            }).catch(err => {
+                console.error(err);
+                alert('Error cargando datos iniciales del servidor');
+            });
+
+            // Populate project dropdowns
+            function populateProjects(projectsList) {
+                projectsList.forEach(project => {
+                    const option1 = document.createElement('option');
+                    option1.value = project.id;
+                    option1.textContent = project.name;
+                    projectSelect.appendChild(option1);
+                    
+                    const option2 = document.createElement('option');
+                    option2.value = project.id;
+                    option2.textContent = project.name;
+                    searchProject.appendChild(option2);
+                });
+            }
+
+            // Update counts
+            function updateCounts(originalCount, modifiedCount) {
+                const totalCount = originalCount + modifiedCount;
+                totalFiles.textContent = `${totalCount} archivo${totalCount !== 1 ? 's' : ''}`;
+                resultsCount.textContent = `${totalCount} archivo${totalCount !== 1 ? 's' : ''} encontrado${totalCount !== 1 ? 's' : ''}`;
+                document.getElementById('originalCount').textContent = originalCount;
+                document.getElementById('modifiedCount').textContent = modifiedCount;
+            }
+
+            // Open modal
+            document.getElementById('uploadBtn').addEventListener('click', function() {
+                const modal = new bootstrap.Modal(document.getElementById('uploadModal'));
+                modal.show();
+            });
+
+            // File select button
+            document.getElementById('selectFileBtn').addEventListener('click', function() {
+                document.getElementById('fileInput').click();
+            });
+
+            // File input change
+            document.getElementById('fileInput').addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const fileName = e.target.files[0].name;
+                    document.getElementById('fileNameDisplay').innerHTML = 
+                        `<div class="alert alert-success mb-0"><i class="fas fa-check-circle me-2"></i> ${fileName}</div>`;
+                }
+            });
+
+            // Drag & drop
+            document.getElementById('dropZone').addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('border-primary');
+                this.classList.remove('border-dashed');
+            });
+            document.getElementById('dropZone').addEventListener('dragleave', function() {
+                this.classList.remove('border-primary');
+                this.classList.add('border-dashed');
+            });
+            document.getElementById('dropZone').addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('border-primary');
+                this.classList.add('border-dashed');
+                if (e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    document.getElementById('fileInput').files = e.dataTransfer.files;
+                    document.getElementById('fileNameDisplay').innerHTML = 
+                        `<div class="alert alert-success mb-0"><i class="fas fa-check-circle me-2"></i> ${file.name}</div>`;
+                }
+            });
+
+            // Upload submit
+            document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const fileInput = document.getElementById('fileInput');
+                const projectSelect = document.getElementById('projectSelect');
+                const reportDate = document.getElementById('reportDate');
+                const sgpsCode = document.getElementById('sgpsCode');
+                const studyCenterName = document.getElementById('studyCenterName');
+                const regional = document.getElementById('regional');
+                const projectResponsibles = document.getElementById('projectResponsibles');
+                const responsible = document.getElementById('responsible');
+                const progress = document.getElementById('progress');
+                const observations = document.getElementById('observations');
+
+                if (!fileInput.files.length || !projectSelect.value || !reportDate.value || !responsible.value || !progress.value) {
+                    alert('Por favor complete todos los campos requeridos');
+                    return;
+                }
+
+                document.getElementById('uploadText').classList.add('d-none');
+                document.getElementById('uploadSpinner').classList.remove('d-none');
+
+                try {
+                    const formData = new FormData();
+                    formData.append('file', fileInput.files[0]);
+                    formData.append('projectId', projectSelect.value);
+                    formData.append('reportDate', reportDate.value);
+                    formData.append('sgpsCode', sgpsCode.value);
+                    formData.append('studyCenterName', studyCenterName.value);
+                    formData.append('regional', regional.value);
+                    formData.append('projectResponsibles', projectResponsibles.value);
+                    formData.append('responsible', responsible.value);
+                    formData.append('progress', progress.value);
+                    formData.append('observations', observations.value);
+
+                    const resp = await fetch(`${API_BASE}/api/files/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (!resp.ok) throw new Error('Error subiendo archivo');
+                    await resp.json();
+
+                    // Refresh list
+                    const [originalFiles, modifiedFiles] = await Promise.all([
+                        fetch(`${API_BASE}/api/files?showModified=false`).then(r => r.json()),
+                        fetch(`${API_BASE}/api/files?showModified=true`).then(r => r.json())
+                    ]);
+                    files = [...originalFiles, ...modifiedFiles];
+                    displayFiles(originalFiles, modifiedFiles);
+                    updateCounts(originalFiles.length, modifiedFiles.length);
+
+                    // Reset form
+                    document.getElementById('uploadForm').reset();
+                    document.getElementById('fileNameDisplay').innerHTML = '';
+                    document.getElementById('uploadText').classList.remove('d-none');
+                    document.getElementById('uploadSpinner').classList.add('d-none');
+
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('uploadModal'));
+                    modal.hide();
+                    alert('Archivo subido exitosamente');
+                } catch (err) {
+                    console.error(err);
+                    alert('Error al subir el archivo');
+                    document.getElementById('uploadText').classList.remove('d-none');
+                    document.getElementById('uploadSpinner').classList.add('d-none');
+                }
+            });
+
+            // Search click
+            document.getElementById('searchBtn').addEventListener('click', async function() {
+                document.getElementById('searchSpinner').classList.remove('d-none');
+                try {
+                    const params = new URLSearchParams();
+                    const q = document.getElementById('searchTerm').value.trim();
+                    const projectId = document.getElementById('searchProject').value;
+                    const sgpsCode = document.getElementById('searchSgpsCode').value.trim();
+                    const studyCenter = document.getElementById('searchStudyCenter').value.trim();
+                    const regional = document.getElementById('searchRegional').value.trim();
+                    const dateFrom = document.getElementById('searchDateFrom').value;
+                    const dateTo = document.getElementById('searchDateTo').value;
+                    const fileType = document.getElementById('searchFileType').value;
+
+                    if (q) params.set('q', q);
+                    if (projectId) params.set('projectId', projectId);
+                    if (sgpsCode) params.set('sgpsCode', sgpsCode);
+                    if (studyCenter) params.set('studyCenter', studyCenter);
+                    if (regional) params.set('regional', regional);
+                    if (dateFrom) params.set('dateFrom', dateFrom);
+                    if (dateTo) params.set('dateTo', dateTo);
+
+                    let originalResults = [];
+                    let modifiedResults = [];
+                    let currentResults = [];
+
+                    if (fileType === '' || fileType === 'original') {
+                        const originalParams = new URLSearchParams(params);
+                        originalParams.set('showModified', 'false');
+                        originalResults = await fetch(`${API_BASE}/api/files?${originalParams.toString()}`).then(r => r.json());
+                    }
+
+                    if (fileType === '' || fileType === 'modified') {
+                        const modifiedParams = new URLSearchParams(params);
+                        modifiedParams.set('showModified', 'true');
+                        modifiedResults = await fetch(`${API_BASE}/api/files?${modifiedParams.toString()}`).then(r => r.json());
+                    }
+
+                    // Buscar en archivos actuales si no hay filtro de tipo específico
+                    if (fileType === '') {
+                        const currentParams = new URLSearchParams(params);
+                        currentResults = await fetch(`${API_BASE}/api/files/current?${currentParams.toString()}`).then(r => r.json());
+                    }
+
+                    displayFiles(originalResults, modifiedResults);
+                    if (currentResults.length > 0) {
+                        displayCurrentFiles(currentResults);
+                        document.getElementById('currentCount').textContent = currentResults.length;
+                    }
+                    updateCounts(originalResults.length, modifiedResults.length);
+                } catch (err) {
+                    console.error(err);
+                    alert('Error realizando la búsqueda');
+                } finally {
+                    document.getElementById('searchSpinner').classList.add('d-none');
+                }
+            });
+
+            // Clear filters
+            document.getElementById('clearFiltersBtn').addEventListener('click', async function() {
+                document.getElementById('searchTerm').value = '';
+                document.getElementById('searchProject').value = '';
+                document.getElementById('searchSgpsCode').value = '';
+                document.getElementById('searchStudyCenter').value = '';
+                document.getElementById('searchRegional').value = '';
+                document.getElementById('searchDateFrom').value = '';
+                document.getElementById('searchDateTo').value = '';
+                document.getElementById('searchFileType').value = '';
+                try {
+                    const [originalFiles, modifiedFiles] = await Promise.all([
+                        fetch(`${API_BASE}/api/files?showModified=false`).then(r => r.json()),
+                        fetch(`${API_BASE}/api/files?showModified=true`).then(r => r.json())
+                    ]);
+                    files = [...originalFiles, ...modifiedFiles];
+                    displayFiles(originalFiles, modifiedFiles);
+                    updateCounts(originalFiles.length, modifiedFiles.length);
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+
+            // Helpers
+            function displayFiles(originalFiles, modifiedFiles) {
+                displayOriginalFiles(originalFiles);
+                displayModifiedFiles(modifiedFiles);
+            }
+
+            function displayOriginalFiles(fileList) {
+                const tbody = document.getElementById('originalFilesTableBody');
+                const noResults = document.getElementById('noResultsOriginal');
+                const resultsTable = document.getElementById('resultsTableOriginal');
+
+                if (fileList.length === 0) {
+                    noResults.classList.remove('d-none');
+                    resultsTable.classList.add('d-none');
+                } else {
+                    noResults.classList.add('d-none');
+                    resultsTable.classList.remove('d-none');
+                }
+
+                tbody.innerHTML = '';
+
+                fileList.forEach(file => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'file-row';
+
+                    const category = file.category || 'General';
+
+                    let progressColor = 'bg-danger';
+                    if (file.progress >= 80) progressColor = 'bg-success';
+                    else if (file.progress >= 50) progressColor = 'bg-warning';
+
+                    tr.innerHTML = `
+                        <td>
+                            <div class="fw-medium">${file.projectName}</div>
+                            <div class="text-muted small">${category}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">${file.sgpsCode || 'N/A'}</span>
+                        </td>
+                        <td>
+                            <div class="fw-medium">${file.studyCenterName || 'N/A'}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">${file.regional || 'N/A'}</span>
+                        </td>
+                        <td>
+                            <div class="fw-medium">${formatDate(file.reportDate)}</div>
+                            <div class="text-muted small">Subido: ${formatDate(file.uploadDate)}</div>
+                        </td>
+                        <td class="fw-medium">${file.responsible}</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress" role="progressbar" style="height: 25px; border-radius: 10px;">
+                                    <div class="progress-bar ${progressColor}" style="width: ${file.progress}%"></div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-1 fw-bold">${file.progress}%</div>
+                        </td>
+                        <td>
+                            <div class="fw-medium text-primary">${file.fileName}</div>
+                            <div class="text-muted small">
+                                <span class="badge bg-secondary badge-version">${file.version}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border">${file.fileSize}</span>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-success btn-sm download-btn" data-id="${file.id}" data-show-modified="false">
+                                    <i class="fas fa-download me-1"></i> Descargar
+                                </button>
+                                <button class="btn btn-info btn-sm view-versions-btn" data-id="${file.id}" data-project-id="${file.projectId}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-warning btn-sm update-file-btn" data-id="${file.id}" data-project-id="${file.projectId}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-delete btn-sm delete-file-btn" data-id="${file.id}" data-is-modified="false" data-file-name="${file.fileName}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+
+                    tbody.appendChild(tr);
+                });
+
+                // Add event listeners for original files
+                addEventListeners(tbody);
+            }
+
+            function displayModifiedFiles(fileList) {
+                const tbody = document.getElementById('modifiedFilesTableBody');
+                const noResults = document.getElementById('noResultsModified');
+                const resultsTable = document.getElementById('resultsTableModified');
+
+                if (fileList.length === 0) {
+                    noResults.classList.remove('d-none');
+                    resultsTable.classList.add('d-none');
+                } else {
+                    noResults.classList.add('d-none');
+                    resultsTable.classList.remove('d-none');
+                }
+
+                tbody.innerHTML = '';
+
+                fileList.forEach(file => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'file-row';
+
+                    const category = file.category || 'General';
+
+                    let progressColor = 'bg-danger';
+                    if (file.progress >= 80) progressColor = 'bg-success';
+                    else if (file.progress >= 50) progressColor = 'bg-warning';
+
+                    tr.innerHTML = `
+                        <td>
+                            <div class="fw-medium">${file.projectName}</div>
+                            <div class="text-muted small">${category}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">${file.sgpsCode || 'N/A'}</span>
+                        </td>
+                        <td>
+                            <div class="fw-medium">${file.studyCenterName || 'N/A'}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">${file.regional || 'N/A'}</span>
+                        </td>
+                        <td>
+                            <div class="fw-medium">${formatDate(file.reportDate)}</div>
+                            <div class="text-muted small">Subido: ${formatDate(file.uploadDate)}</div>
+                        </td>
+                        <td class="fw-medium">${file.responsible}</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress" role="progressbar" style="height: 25px; border-radius: 10px;">
+                                    <div class="progress-bar ${progressColor}" style="width: ${file.progress}%"></div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-1 fw-bold">${file.progress}%</div>
+                        </td>
+                        <td>
+                            <div class="fw-medium text-primary">${file.fileName}</div>
+                            <div class="text-muted small">
+                                <span class="badge bg-secondary badge-version">${file.version}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border">${file.fileSize}</span>
+                        </td>
+                        <td>
+                            <div class="text-muted small">${file.modificationReason || 'N/A'}</div>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-success btn-sm download-btn" data-id="${file.id}" data-show-modified="true">
+                                    <i class="fas fa-download me-1"></i> Descargar
+                                </button>
+                                <button class="btn btn-info btn-sm view-versions-btn" data-id="${file.id}" data-project-id="${file.projectId}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-warning btn-sm update-file-btn" data-id="${file.id}" data-project-id="${file.projectId}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-delete btn-sm delete-file-btn" data-id="${file.id}" data-is-modified="true" data-file-name="${file.fileName}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+
+                    tbody.appendChild(tr);
+                });
+
+                // Add event listeners for modified files
+                addEventListeners(tbody);
+            }
+
+            function addEventListeners(container) {
+                // download handlers
+                container.querySelectorAll('.download-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const fileId = this.getAttribute('data-id');
+                        const showModified = this.getAttribute('data-show-modified');
+                        this.disabled = true;
+                        const original = this.innerHTML;
+                        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Descargando...';
+                        const url = `${API_BASE}/api/files/${fileId}/download?showModified=${showModified}`;
+                        const link = document.createElement('a');
+                        link.href = url;
+                        document.body.appendChild(link);
+                        link.click();
+                        setTimeout(() => {
+                            this.disabled = false;
+                            this.innerHTML = original;
+                            link.remove();
+                        }, 1200);
+                    });
+                });
+
+                // view versions handlers
+                container.querySelectorAll('.view-versions-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const originalFileId = this.getAttribute('data-id');
+                        showVersionsModal(originalFileId);
+                    });
+                });
+
+                // update file handlers
+                container.querySelectorAll('.update-file-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const fileId = this.getAttribute('data-id');
+                        const projectId = this.getAttribute('data-project-id');
+                        showUpdateFileModal(fileId, projectId);
+                    });
+                });
+
+                // delete file handlers
+                container.querySelectorAll('.delete-file-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const fileId = this.getAttribute('data-id');
+                        const isModified = this.getAttribute('data-is-modified');
+                        const fileName = this.getAttribute('data-file-name');
+                        showDeleteConfirm(fileId, fileName, isModified);
+                    });
+                });
+            }
+
+            function formatDate(dateString) {
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                return new Date(dateString).toLocaleDateString('es-ES', options);
+            }
+
+            // Show versions modal
+            async function showVersionsModal(originalFileId) {
+                const modal = new bootstrap.Modal(document.getElementById('versionsModal'));
+                const loading = document.getElementById('versionsLoading');
+                const content = document.getElementById('versionsContent');
+                const tbody = document.getElementById('versionsTableBody');
+
+                loading.classList.remove('d-none');
+                content.classList.add('d-none');
+                modal.show();
+
+                try {
+                    const versions = await fetch(`${API_BASE}/api/files/versions/${originalFileId}`).then(r => r.json());
+                    
+                    tbody.innerHTML = '';
+                    if (versions.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No hay versiones modificadas de este archivo</td></tr>';
+                    } else {
+                        versions.forEach(version => {
+                            const tr = document.createElement('tr');
+                            let progressColor = 'bg-danger';
+                            if (version.progress >= 80) progressColor = 'bg-success';
+                            else if (version.progress >= 50) progressColor = 'bg-warning';
+
+                            tr.innerHTML = `
+                                <td>
+                                    <span class="badge bg-primary">${version.version}</span>
+                                </td>
+                                <td>${formatDate(version.uploadDate)}</td>
+                                <td>${formatDate(version.reportDate)}</td>
+                                <td class="fw-medium">${version.responsible}</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar ${progressColor}" style="width: ${version.progress}%"></div>
+                                    </div>
+                                    <small class="text-muted">${version.progress}%</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">${version.fileSize}</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-success btn-sm" onclick="downloadVersion(${version.id}, true)">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    }
+                } catch (err) {
+                    console.error(err);
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error cargando versiones</td></tr>';
+                } finally {
+                    loading.classList.add('d-none');
+                    content.classList.remove('d-none');
+                }
+            }
+
+            // Show update file modal
+            async function showUpdateFileModal(fileId, projectId) {
+                const modal = new bootstrap.Modal(document.getElementById('updateFileModal'));
+                const updateProjectSelect = document.getElementById('updateProjectSelect');
+                
+                // Populate project select for update modal
+                updateProjectSelect.innerHTML = '<option value="">Seleccione un proyecto</option>';
+                projects.forEach(project => {
+                    const option = document.createElement('option');
+                    option.value = project.id;
+                    option.textContent = project.name;
+                    if (project.id == projectId) option.selected = true;
+                    updateProjectSelect.appendChild(option);
+                });
+
+                // Set file ID
+                document.getElementById('updateFileId').value = fileId;
+                
+                // Prefill fields from original file metadata
+                try {
+                    const meta = await fetch(`${API_BASE}/api/files/meta/${fileId}`).then(r => r.json());
+                    document.getElementById('updateReportDate').value = (meta.reportDate || '').slice(0, 10);
+                    document.getElementById('updateSgpsCode').value = meta.sgpsCode || '';
+                    document.getElementById('updateStudyCenterName').value = meta.studyCenterName || '';
+                    document.getElementById('updateRegional').value = meta.regional || '';
+                    document.getElementById('updateProjectResponsibles').value = meta.projectResponsibles || '';
+                    document.getElementById('updateResponsible').value = meta.responsible || '';
+                    document.getElementById('updateProgress').value = meta.progress ?? '';
+                    document.getElementById('updateObservations').value = meta.observations || '';
+                } catch (e) {
+                    console.error('No se pudo obtener metadatos del archivo original', e);
+                }
+
+                modal.show();
+            }
+
+            // Download version function
+            window.downloadVersion = function(fileId, isModified = false) {
+                const url = `${API_BASE}/api/files/${fileId}/download?showModified=${isModified}`;
+                const link = document.createElement('a');
+                link.href = url;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            };
+
+            // Update file form handlers
+            document.getElementById('updateSelectFileBtn').addEventListener('click', function() {
+                document.getElementById('updateFileInput').click();
+            });
+
+            document.getElementById('updateFileInput').addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const fileName = e.target.files[0].name;
+                    document.getElementById('updateFileNameDisplay').innerHTML = 
+                        `<div class="alert alert-success mb-0"><i class="fas fa-check-circle me-2"></i> ${fileName}</div>`;
+                }
+            });
+
+            // Drag & drop for update modal
+            document.getElementById('updateDropZone').addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('border-primary');
+                this.classList.remove('border-dashed');
+            });
+            document.getElementById('updateDropZone').addEventListener('dragleave', function() {
+                this.classList.remove('border-primary');
+                this.classList.add('border-dashed');
+            });
+            document.getElementById('updateDropZone').addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('border-primary');
+                this.classList.add('border-dashed');
+                if (e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    document.getElementById('updateFileInput').files = e.dataTransfer.files;
+                    document.getElementById('updateFileNameDisplay').innerHTML = 
+                        `<div class="alert alert-success mb-0"><i class="fas fa-check-circle me-2"></i> ${file.name}</div>`;
+                }
+            });
+
+            // Update file form submit
+            document.getElementById('updateFileForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const fileInput = document.getElementById('updateFileInput');
+                const projectSelect = document.getElementById('updateProjectSelect');
+                const reportDate = document.getElementById('updateReportDate');
+                const sgpsCode = document.getElementById('updateSgpsCode');
+                const studyCenterName = document.getElementById('updateStudyCenterName');
+                const regional = document.getElementById('updateRegional');
+                const projectResponsibles = document.getElementById('updateProjectResponsibles');
+                const responsible = document.getElementById('updateResponsible');
+                const progress = document.getElementById('updateProgress');
+                const observations = document.getElementById('updateObservations');
+                const modificationReason = document.getElementById('updateModificationReason');
+                const fileId = document.getElementById('updateFileId').value;
+
+                if (!fileInput.files.length || !projectSelect.value || !reportDate.value || !responsible.value || !progress.value) {
+                    alert('Por favor complete todos los campos requeridos');
+                    return;
+                }
+
+                document.getElementById('updateText').classList.add('d-none');
+                document.getElementById('updateSpinner').classList.remove('d-none');
+
+                try {
+                    const formData = new FormData();
+                    formData.append('file', fileInput.files[0]);
+                    formData.append('projectId', projectSelect.value);
+                    formData.append('reportDate', reportDate.value);
+                    formData.append('sgpsCode', sgpsCode.value);
+                    formData.append('studyCenterName', studyCenterName.value);
+                    formData.append('regional', regional.value);
+                    formData.append('projectResponsibles', projectResponsibles.value);
+                    formData.append('responsible', responsible.value);
+                    formData.append('progress', progress.value);
+                    formData.append('observations', observations.value);
+                    formData.append('isModification', 'true');
+                    formData.append('originalFileId', fileId);
+                    formData.append('modificationReason', modificationReason.value);
+
+                    const resp = await fetch(`${API_BASE}/api/files/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (!resp.ok) throw new Error('Error subiendo archivo');
+                    await resp.json();
+
+                    // Refresh list
+                    const [originalFiles, modifiedFiles] = await Promise.all([
+                        fetch(`${API_BASE}/api/files?showModified=false`).then(r => r.json()),
+                        fetch(`${API_BASE}/api/files?showModified=true`).then(r => r.json())
+                    ]);
+                    files = [...originalFiles, ...modifiedFiles];
+                    displayFiles(originalFiles, modifiedFiles);
+                    updateCounts(originalFiles.length, modifiedFiles.length);
+
+                    // Reset form
+                    document.getElementById('updateFileForm').reset();
+                    document.getElementById('updateFileNameDisplay').innerHTML = '';
+                    document.getElementById('updateText').classList.remove('d-none');
+                    document.getElementById('updateSpinner').classList.add('d-none');
+
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('updateFileModal'));
+                    modal.hide();
+                    alert('Archivo actualizado exitosamente');
+                } catch (err) {
+                    console.error(err);
+                    alert('Error al actualizar el archivo');
+                    document.getElementById('updateText').classList.remove('d-none');
+                    document.getElementById('updateSpinner').classList.add('d-none');
+                }
+            });
+
+            // ==== FUNCIONES PARA ELIMINACIÓN ====
+            function showDeleteConfirm(fileId, fileName, isModified) {
+                const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+                document.getElementById('deleteFileInfo').innerHTML = `
+                    <strong>Archivo:</strong> ${fileName}<br>
+                    <strong>Tipo:</strong> ${isModified === 'true' ? 'Modificado' : 'Original'}
+                `;
+                document.getElementById('confirmDelete').setAttribute('data-file-id', fileId);
+                document.getElementById('confirmDelete').setAttribute('data-is-modified', isModified);
+                modal.show();
+            }
+
+            async function deleteFile(fileId, isModified) {
+                try {
+                    const response = await fetch(`${API_BASE}/api/files/${fileId}?isModified=${isModified}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (!response.ok) throw new Error('Error eliminando archivo');
+                    
+                    // Recargar datos
+                    await refreshAllData();
+                    alert('Archivo eliminado correctamente');
+                } catch (err) {
+                    console.error(err);
+                    alert('Error al eliminar el archivo');
+                }
+            }
+
+            // Event listener para confirmar eliminación
+            document.getElementById('confirmDelete').addEventListener('click', async function() {
+                const fileId = this.getAttribute('data-file-id');
+                const isModified = this.getAttribute('data-is-modified');
+                
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+                modal.hide();
+                
+                await deleteFile(fileId, isModified);
+            });
+
+            // ==== FUNCIONES PARA PESTAÑA DE ARCHIVOS ACTUALES ====
+            async function loadCurrentFiles() {
+                try {
+                    const params = new URLSearchParams();
+                    const dateFrom = document.getElementById('currentDateFrom').value;
+                    const dateTo = document.getElementById('currentDateTo').value;
+                    const limit = document.getElementById('currentLimit').value;
+                    
+                    if (dateFrom) params.set('dateFrom', dateFrom);
+                    if (dateTo) params.set('dateTo', dateTo);
+                    if (limit) params.set('limit', limit);
+                    
+                    const files = await fetch(`${API_BASE}/api/files/current?${params.toString()}`).then(r => r.json());
+                    displayCurrentFiles(files);
+                    document.getElementById('currentCount').textContent = files.length;
+                } catch (err) {
+                    console.error(err);
+                    alert('Error cargando archivos actuales');
+                }
+            }
+
+            function displayCurrentFiles(fileList) {
+                const tbody = document.getElementById('currentFilesTableBody');
+                const noResults = document.getElementById('noResultsCurrent');
+                const resultsTable = document.getElementById('resultsTableCurrent');
+
+                if (fileList.length === 0) {
+                    noResults.classList.remove('d-none');
+                    resultsTable.classList.add('d-none');
+                } else {
+                    noResults.classList.add('d-none');
+                    resultsTable.classList.remove('d-none');
+                }
+
+                tbody.innerHTML = '';
+
+                fileList.forEach(file => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'file-row';
+
+                    const category = file.category || 'General';
+                    const fileType = file.fileType || 'original';
+                    const typeBadge = fileType === 'original' ? 
+                        '<span class="badge badge-original">Original</span>' : 
+                        '<span class="badge badge-modified">Modificado</span>';
+
+                    let progressColor = 'bg-danger';
+                    if (file.progress >= 80) progressColor = 'bg-success';
+                    else if (file.progress >= 50) progressColor = 'bg-warning';
+
+                    tr.innerHTML = `
+                        <td>${typeBadge}</td>
+                        <td>
+                            <div class="fw-medium">${file.projectName}</div>
+                            <div class="text-muted small">${category}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">${file.sgpsCode || 'N/A'}</span>
+                        </td>
+                        <td>
+                            <div class="fw-medium">${file.studyCenterName || 'N/A'}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">${file.regional || 'N/A'}</span>
+                        </td>
+                        <td>
+                            <div class="fw-medium">${formatDate(file.reportDate)}</div>
+                            <div class="text-muted small">Subido: ${formatDate(file.uploadDate)}</div>
+                        </td>
+                        <td class="fw-medium">${file.responsible}</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress" role="progressbar" style="height: 25px; border-radius: 10px;">
+                                    <div class="progress-bar ${progressColor}" style="width: ${file.progress}%"></div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-1 fw-bold">${file.progress}%</div>
+                        </td>
+                        <td>
+                            <div class="fw-medium text-primary">${file.fileName}</div>
+                            <div class="text-muted small">
+                                <span class="badge bg-secondary badge-version">${file.version}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border">${file.fileSize}</span>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-success btn-sm download-btn" data-id="${file.id}" data-show-modified="${fileType === 'modified'}">
+                                    <i class="fas fa-download me-1"></i> Descargar
+                                </button>
+                                <button class="btn btn-info btn-sm view-versions-btn" data-id="${file.id}" data-project-id="${file.projectId}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-warning btn-sm update-file-btn" data-id="${file.id}" data-project-id="${file.projectId}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-delete btn-sm delete-file-btn" data-id="${file.id}" data-is-modified="${fileType === 'modified'}" data-file-name="${file.fileName}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+
+                    tbody.appendChild(tr);
+                });
+
+                // Add event listeners for current files
+                addEventListeners(tbody);
+            }
+
+            // Event listener para aplicar filtros de archivos actuales
+            document.getElementById('applyCurrentFilters').addEventListener('click', function() {
+                loadCurrentFiles();
+            });
+
+            // Event listeners para botones de búsqueda específicos
+            document.getElementById('searchOriginalBtn').addEventListener('click', function() {
+                searchInOriginalFiles();
+            });
+
+            document.getElementById('searchModifiedBtn').addEventListener('click', function() {
+                searchInModifiedFiles();
+            });
+
+            // Event listener para cargar archivos actuales cuando se hace clic en la pestaña
+            document.getElementById('current-tab').addEventListener('click', function() {
+                loadCurrentFiles();
+            });
+
+            // ==== BUSCADORES ESPECÍFICOS POR PESTAÑA ====
+            
+            // Buscador para pestaña de archivos originales
+            document.getElementById('original-tab').addEventListener('click', function() {
+                // Verificar si hay filtros activos
+                const hasFilters = document.getElementById('searchTerm').value.trim() || 
+                                 document.getElementById('searchProject').value || 
+                                 document.getElementById('searchSgpsCode').value.trim() || 
+                                 document.getElementById('searchStudyCenter').value.trim() || 
+                                 document.getElementById('searchRegional').value.trim() || 
+                                 document.getElementById('searchDateFrom').value || 
+                                 document.getElementById('searchDateTo').value;
+                
+                if (hasFilters) {
+                    searchInOriginalFiles();
+                }
+            });
+
+            // Buscador para pestaña de archivos modificados
+            document.getElementById('modified-tab').addEventListener('click', function() {
+                // Verificar si hay filtros activos
+                const hasFilters = document.getElementById('searchTerm').value.trim() || 
+                                 document.getElementById('searchProject').value || 
+                                 document.getElementById('searchSgpsCode').value.trim() || 
+                                 document.getElementById('searchStudyCenter').value.trim() || 
+                                 document.getElementById('searchRegional').value.trim() || 
+                                 document.getElementById('searchDateFrom').value || 
+                                 document.getElementById('searchDateTo').value;
+                
+                if (hasFilters) {
+                    searchInModifiedFiles();
+                }
+            });
+
+            // Buscador para pestaña de archivos actuales
+            document.getElementById('current-tab').addEventListener('click', function() {
+                // Verificar si hay filtros activos
+                const hasFilters = document.getElementById('searchTerm').value.trim() || 
+                                 document.getElementById('searchProject').value || 
+                                 document.getElementById('searchSgpsCode').value.trim() || 
+                                 document.getElementById('searchStudyCenter').value.trim() || 
+                                 document.getElementById('searchRegional').value.trim() || 
+                                 document.getElementById('searchDateFrom').value || 
+                                 document.getElementById('searchDateTo').value;
+                
+                if (hasFilters) {
+                    searchInCurrentFiles();
+                } else {
+                    loadCurrentFiles();
+                }
+            });
+
+            // Funciones de búsqueda específicas por pestaña
+            async function searchInOriginalFiles() {
+                try {
+                    const params = new URLSearchParams();
+                    const q = document.getElementById('searchTerm').value.trim();
+                    const projectId = document.getElementById('searchProject').value;
+                    const sgpsCode = document.getElementById('searchSgpsCode').value.trim();
+                    const studyCenter = document.getElementById('searchStudyCenter').value.trim();
+                    const regional = document.getElementById('searchRegional').value.trim();
+                    const dateFrom = document.getElementById('searchDateFrom').value;
+                    const dateTo = document.getElementById('searchDateTo').value;
+
+                    if (q) params.set('q', q);
+                    if (projectId) params.set('projectId', projectId);
+                    if (sgpsCode) params.set('sgpsCode', sgpsCode);
+                    if (studyCenter) params.set('studyCenter', studyCenter);
+                    if (regional) params.set('regional', regional);
+                    if (dateFrom) params.set('dateFrom', dateFrom);
+                    if (dateTo) params.set('dateTo', dateTo);
+
+                    params.set('showModified', 'false');
+                    const originalResults = await fetch(`${API_BASE}/api/files?${params.toString()}`).then(r => r.json());
+                    displayOriginalFiles(originalResults);
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+
+            async function searchInModifiedFiles() {
+                try {
+                    const params = new URLSearchParams();
+                    const q = document.getElementById('searchTerm').value.trim();
+                    const projectId = document.getElementById('searchProject').value;
+                    const sgpsCode = document.getElementById('searchSgpsCode').value.trim();
+                    const studyCenter = document.getElementById('searchStudyCenter').value.trim();
+                    const regional = document.getElementById('searchRegional').value.trim();
+                    const dateFrom = document.getElementById('searchDateFrom').value;
+                    const dateTo = document.getElementById('searchDateTo').value;
+
+                    if (q) params.set('q', q);
+                    if (projectId) params.set('projectId', projectId);
+                    if (sgpsCode) params.set('sgpsCode', sgpsCode);
+                    if (studyCenter) params.set('studyCenter', studyCenter);
+                    if (regional) params.set('regional', regional);
+                    if (dateFrom) params.set('dateFrom', dateFrom);
+                    if (dateTo) params.set('dateTo', dateTo);
+
+                    params.set('showModified', 'true');
+                    const modifiedResults = await fetch(`${API_BASE}/api/files?${params.toString()}`).then(r => r.json());
+                    displayModifiedFiles(modifiedResults);
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+
+            async function searchInCurrentFiles() {
+                try {
+                    const params = new URLSearchParams();
+                    const q = document.getElementById('searchTerm').value.trim();
+                    const projectId = document.getElementById('searchProject').value;
+                    const sgpsCode = document.getElementById('searchSgpsCode').value.trim();
+                    const studyCenter = document.getElementById('searchStudyCenter').value.trim();
+                    const regional = document.getElementById('searchRegional').value.trim();
+                    const dateFrom = document.getElementById('searchDateFrom').value;
+                    const dateTo = document.getElementById('searchDateTo').value;
+
+                    if (q) params.set('q', q);
+                    if (projectId) params.set('projectId', projectId);
+                    if (sgpsCode) params.set('sgpsCode', sgpsCode);
+                    if (studyCenter) params.set('studyCenter', studyCenter);
+                    if (regional) params.set('regional', regional);
+                    if (dateFrom) params.set('dateFrom', dateFrom);
+                    if (dateTo) params.set('dateTo', dateTo);
+
+                    const currentResults = await fetch(`${API_BASE}/api/files/current?${params.toString()}`).then(r => r.json());
+                    displayCurrentFiles(currentResults);
+                    document.getElementById('currentCount').textContent = currentResults.length;
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+
+            // ==== FUNCIÓN PARA RECARGAR TODOS LOS DATOS ====
+            async function refreshAllData() {
+                try {
+                    const [originalFiles, modifiedFiles] = await Promise.all([
+                        fetch(`${API_BASE}/api/files?showModified=false`).then(r => r.json()),
+                        fetch(`${API_BASE}/api/files?showModified=true`).then(r => r.json())
+                    ]);
+                    files = [...originalFiles, ...modifiedFiles];
+                    displayFiles(originalFiles, modifiedFiles);
+                    updateCounts(originalFiles.length, modifiedFiles.length);
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
