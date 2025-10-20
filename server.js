@@ -26,10 +26,12 @@ app.use('/uploads', express.static(uploadsDir));
 // API routes
 app.use('/api/files', filesRouter);
 
-// Serve index.html
-app.use(express.static(__dirname));
+// ✅ CORREGIDO: Servir archivos estáticos desde public/
+app.use(express.static(path.join(__dirname, 'public')));
+
+// ✅ CORREGIDO: Ruta para servir el frontend
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Healthcheck and DB check
