@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "Backend y frontend para gestionar archivos por proyecto con Supabase",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node src/server.js",
     "dev": "nodemon server.js"
   },
   "dependencies": {
