@@ -14,7 +14,7 @@ const supabase = require('./src/db');
 const filesRouter = require('./src/routes/files');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 app.use(cors());
 app.use(morgan('dev'));

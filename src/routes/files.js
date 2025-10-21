@@ -18,94 +18,157 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// router.get('/', async (req, res) => {
+//   try {
+//     const { q, projectId, dateFrom, dateTo, sgpsCode, studyCenter, regional, showModified } = req.query;
+    
+//     // Determine which table to query
+//     const tableName = showModified === 'true' ? 'modified_files' : 'files';
+    
+//     let query = supabase
+//       .from(tableName)
+//       .select(`
+//         id,
+//         project_id,
+//         file_name,
+//         upload_date,
+//         report_date,
+//         responsible,
+//         progress,
+//         observations,
+//         file_size,
+//         version,
+//         category,
+//         storage_path,
+//         sgps_code,
+//         study_center_name,
+//         regional,
+//         project_responsibles,
+//         ${showModified === 'true' ? 'original_file_id, modification_reason' : ''}
+//         projects!inner(id, name)
+//       `)
+//       .order('upload_date', { ascending: false });
+
+//     // Apply filters
+//     if (q) {
+//       query = query.or(`file_name.ilike.%${q}%,responsible.ilike.%${q}%,observations.ilike.%${q}%,category.ilike.%${q}%,sgps_code.ilike.%${q}%,study_center_name.ilike.%${q}%,regional.ilike.%${q}%`);
+//     }
+//     if (projectId) {
+//       query = query.eq('project_id', projectId);
+//     }
+//     if (dateFrom) {
+//       query = query.gte('report_date', dateFrom);
+//     }
+//     if (dateTo) {
+//       query = query.lte('report_date', dateTo);
+//     }
+//     if (sgpsCode) {
+//       query = query.ilike('sgps_code', `%${sgpsCode}%`);
+//     }
+//     if (studyCenter) {
+//       query = query.ilike('study_center_name', `%${studyCenter}%`);
+//     }
+//     if (regional) {
+//       query = query.ilike('regional', `%${regional}%`);
+//     }
+
+//     const { data, error } = await query;
+    
+//     if (error) {
+//       throw error;
+//     }
+
+//     // Transform data to match expected format
+//     const transformedData = data.map(row => ({
+//       id: row.id,
+//       projectId: row.project_id,
+//       projectName: row.projects.name,
+//       fileName: row.file_name,
+//       uploadDate: row.upload_date,
+//       reportDate: row.report_date,
+//       responsible: row.responsible,
+//       progress: row.progress,
+//       observations: row.observations,
+//       fileSize: row.file_size,
+//       version: row.version,
+//       category: row.category,
+//       storagePath: row.storage_path,
+//       sgpsCode: row.sgps_code,
+//       studyCenterName: row.study_center_name,
+//       regional: row.regional,
+//       projectResponsibles: row.project_responsibles,
+//       ...(showModified === 'true' && {
+//         originalFileId: row.original_file_id,
+//         modificationReason: row.modification_reason
+//       })
+//     }));
+
+//     res.json(transformedData);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
+
+// En tu router, agrega:
+router.get('/test-connection', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('projects').select('*').limit(5);
+    
+    if (error) throw error;
+    
+    res.json({
+      success: true,
+      message: 'Conexión exitosa a Supabase',
+      data: data
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: 'Error de conexión a Supabase',
+      error: err.message
+    });
+  }
+});
+
 router.get('/', async (req, res) => {
   try {
-    const { q, projectId, dateFrom, dateTo, sgpsCode, studyCenter, regional, showModified } = req.query;
+    const { showModified } = req.query;
     
-    // Determine which table to query
+    // Debug: Verificar variables de entorno
+    console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? 'Definida' : 'FALTANTE');
+    console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? 'Definida' : 'FALTANTE');
+    
     const tableName = showModified === 'true' ? 'modified_files' : 'files';
+    console.log('Consultando tabla:', tableName);
     
-    let query = supabase
+    // Hacer una consulta simple primero
+    const { data, error, status } = await supabase
       .from(tableName)
-      .select(`
-        id,
-        project_id,
-        file_name,
-        upload_date,
-        report_date,
-        responsible,
-        progress,
-        observations,
-        file_size,
-        version,
-        category,
-        storage_path,
-        sgps_code,
-        study_center_name,
-        regional,
-        project_responsibles,
-        ${showModified === 'true' ? 'original_file_id, modification_reason' : ''}
-        projects!inner(id, name)
-      `)
-      .order('upload_date', { ascending: false });
+      .select('*')
+      .limit(1);
 
-    // Apply filters
-    if (q) {
-      query = query.or(`file_name.ilike.%${q}%,responsible.ilike.%${q}%,observations.ilike.%${q}%,category.ilike.%${q}%,sgps_code.ilike.%${q}%,study_center_name.ilike.%${q}%,regional.ilike.%${q}%`);
-    }
-    if (projectId) {
-      query = query.eq('project_id', projectId);
-    }
-    if (dateFrom) {
-      query = query.gte('report_date', dateFrom);
-    }
-    if (dateTo) {
-      query = query.lte('report_date', dateTo);
-    }
-    if (sgpsCode) {
-      query = query.ilike('sgps_code', `%${sgpsCode}%`);
-    }
-    if (studyCenter) {
-      query = query.ilike('study_center_name', `%${studyCenter}%`);
-    }
-    if (regional) {
-      query = query.ilike('regional', `%${regional}%`);
-    }
+    console.log('Status Supabase:', status);
+    console.log('Error Supabase:', error);
+    console.log('Datos recibidos:', data);
 
-    const { data, error } = await query;
-    
     if (error) {
+      console.error('Error detallado de Supabase:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      });
       throw error;
     }
 
-    // Transform data to match expected format
-    const transformedData = data.map(row => ({
-      id: row.id,
-      projectId: row.project_id,
-      projectName: row.projects.name,
-      fileName: row.file_name,
-      uploadDate: row.upload_date,
-      reportDate: row.report_date,
-      responsible: row.responsible,
-      progress: row.progress,
-      observations: row.observations,
-      fileSize: row.file_size,
-      version: row.version,
-      category: row.category,
-      storagePath: row.storage_path,
-      sgpsCode: row.sgps_code,
-      studyCenterName: row.study_center_name,
-      regional: row.regional,
-      projectResponsibles: row.project_responsibles,
-      ...(showModified === 'true' && {
-        originalFileId: row.original_file_id,
-        modificationReason: row.modification_reason
-      })
-    }));
-
-    res.json(transformedData);
+    // ... resto del código
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Error completo en endpoint /files:', err);
+    res.status(500).json({ 
+      error: err.message,
+      code: err.code,
+      details: err.details 
+    });
   }
 });
 
