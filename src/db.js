@@ -1,24 +1,14 @@
-import { createClient } from '@supabase/supabase-js';
+// src/db.js
+require('dotenv').config(); // 👈 Asegúrate de cargar el .env aquí también
+const { createClient } = require('@supabase/supabase-js');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY; // 👈 NOMBRE CORRECTO
 
-export default supabase;
+// Verifica que se carguen correctamente
+console.log('URL:', supabaseUrl);
+console.log('KEY:', supabaseKey ? '✔ cargada' : '❌ no cargada');
 
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-// const mysql = require('mysql2/promise');
-
-// const pool = mysql.createPool({
-//   host: process.env.DB_HOST || 'localhost',
-//   port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306,
-//   user: process.env.DB_USER || 'root',
-//   password: process.env.DB_PASSWORD || '',
-//   database: process.env.DB_NAME || 'gestor_archivos',
-//   waitForConnections: true,
-//   connectionLimit: 10,
-//   queueLimit: 0,
-// });
-
-// module.exports = { pool };
+module.exports = supabase;

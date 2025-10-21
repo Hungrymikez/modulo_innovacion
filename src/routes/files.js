@@ -2,8 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
-const supabase = require('../db').default;
-
+const supabase = require('../db');
 const router = express.Router();
 
 const uploadsDir = path.join(process.cwd(), 'uploads');
@@ -266,7 +265,7 @@ router.get('/projects', async (req, res) => {
     if (error) {
       throw error;
     }
-
+    console.log("Proyectos desde Supabase:", data);
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });

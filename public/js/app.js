@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load initial data
     Promise.all([
         fetch(`${API_BASE}/api/files/projects`).then(r => r.json()),
+        
         fetch(`${API_BASE}/api/files?showModified=false`).then(r => r.json()),
         fetch(`${API_BASE}/api/files?showModified=true`).then(r => r.json())
     ]).then(([proj, originalFiles, modifiedFiles]) => {

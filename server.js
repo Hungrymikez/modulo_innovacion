@@ -1,15 +1,20 @@
-require('dotenv').config();
+// server.js
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 
-const supabase = require('./src/db').default;
+require('dotenv').config();
+console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
+console.log('SUPABASE_KEY:', process.env.SUPABASE_ANON_KEY ? '✔ cargada' : '❌ no cargada');
+
+// 👇 Quita el `.default`, no lo necesitas con require()
+const supabase = require('./src/db');
 const filesRouter = require('./src/routes/files');
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(morgan('dev'));
@@ -26,10 +31,10 @@ app.use('/uploads', express.static(uploadsDir));
 // API routes
 app.use('/api/files', filesRouter);
 
-// ✅ CORREGIDO: Servir archivos estáticos desde public/
+// Serve static files from public/
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ✅ CORREGIDO: Ruta para servir el frontend
+// Serve frontend
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
