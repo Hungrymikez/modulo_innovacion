@@ -108,6 +108,35 @@ const upload = multer({ storage });
 //     res.status(500).json({ error: err.message });
 //   }
 // });
+router.get('/debug', async (req, res) => {
+  try {
+    // Test 1: Consulta simple sin JOIN
+    console.log('Test 1: Consulta simple a files');
+    const { data: simpleData, error: simpleError } = await supabase
+      .from('files')
+      .select('id, file_name')
+      .limit(5);
+    
+    console.log('Simple query result:', { data: simpleData, error: simpleError });
+
+    // Test 2: Consulta con JOIN
+    console.log('Test 2: Consulta con JOIN');
+    const { data: joinData, error: joinError } = await supabase
+      .from('files')
+      .select('id, file_name, projects(name)')
+      .limit(5);
+
+    console.log('Join query result:', { data: joinData, error: joinError });
+
+    res.json({
+      simpleQuery: { data: simpleData, error: simpleError },
+      joinQuery: { data: joinData, error: joinError }
+    });
+  } catch (err) {
+    console.error('Error en debug:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // En tu router, agrega:
 router.get('/test-connection', async (req, res) => {
@@ -132,43 +161,97 @@ router.get('/test-connection', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const { showModified } = req.query;
+    const { q, projectId, dateFrom, dateTo, sgpsCode, studyCenter, regional, showModified } = req.query;
     
-    // Debug: Verificar variables de entorno
-    console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? 'Definida' : 'FALTANTE');
-    console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? 'Definida' : 'FALTANTE');
-    
+    // Determine which table to query
     const tableName = showModified === 'true' ? 'modified_files' : 'files';
-    console.log('Consultando tabla:', tableName);
     
-    // Hacer una consulta simple primero
-    const { data, error, status } = await supabase
+    // QUITA EL JOIN TEMPORALMENTE para probar
+    let query = supabase
       .from(tableName)
-      .select('*')
-      .limit(1);
+      .select('*') // ← Cambia a select simple
+      .order('upload_date', { ascending: false });
 
-    console.log('Status Supabase:', status);
-    console.log('Error Supabase:', error);
-    console.log('Datos recibidos:', data);
+    // Apply filters
+    if (q) {
+      query = query.or(`file_name.ilike.%${q}%,responsible.ilike.%${q}%,observations.ilike.%${q}%,category.ilike.%${q}%,sgps_code.ilike.%${q}%,study_center_name.ilike.%${q}%,regional.ilike.%${q}%`);
+    }
+    if (projectId) {
+      query = query.eq('project_id', projectId);
+    }
+    if (dateFrom) {
+      query = query.gte('report_date', dateFrom);
+    }
+    if (dateTo) {
+      query = query.lte('report_date', dateTo);
+    }
+    if (sgpsCode) {
+      query = query.ilike('sgps_code', `%${sgpsCode}%`);
+    }
+    if (studyCenter) {
+      query = query.ilike('study_center_name', `%${studyCenter}%`);
+    }
+    if (regional) {
+      query = query.ilike('regional', `%${regional}%`);
+    }
 
+    console.log(`Consultando tabla: ${tableName}`);
+    const { data, error } = await query;
+    
     if (error) {
-      console.error('Error detallado de Supabase:', {
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint
-      });
+      console.error('Error en consulta:', error);
       throw error;
     }
 
-    // ... resto del código
+    console.log(`Datos obtenidos: ${data ? data.length : 0} registros`);
+    
+    // Obtener nombres de proyectos por separado
+    const projectIds = [...new Set(data.map(row => row.project_id))];
+    let projectsMap = {};
+    
+    if (projectIds.length > 0) {
+      const { data: projects, error: projectsError } = await supabase
+        .from('projects')
+        .select('id, name')
+        .in('id', projectIds);
+      
+      if (!projectsError && projects) {
+        projectsMap = projects.reduce((acc, project) => {
+          acc[project.id] = project.name;
+          return acc;
+        }, {});
+      }
+    }
+
+    // Transform data
+    const transformedData = data.map(row => ({
+      id: row.id,
+      projectId: row.project_id,
+      projectName: projectsMap[row.project_id] || 'Proyecto no encontrado',
+      fileName: row.file_name,
+      uploadDate: row.upload_date,
+      reportDate: row.report_date,
+      responsible: row.responsible,
+      progress: row.progress,
+      observations: row.observations,
+      fileSize: row.file_size,
+      version: row.version,
+      category: row.category,
+      storagePath: row.storage_path,
+      sgpsCode: row.sgps_code,
+      studyCenterName: row.study_center_name,
+      regional: row.regional,
+      projectResponsibles: row.project_responsibles,
+      ...(showModified === 'true' && {
+        originalFileId: row.original_file_id,
+        modificationReason: row.modification_reason
+      })
+    }));
+
+    res.json(transformedData);
   } catch (err) {
     console.error('Error completo en endpoint /files:', err);
-    res.status(500).json({ 
-      error: err.message,
-      code: err.code,
-      details: err.details 
-    });
+    res.status(500).json({ error: err.message });
   }
 });
 
