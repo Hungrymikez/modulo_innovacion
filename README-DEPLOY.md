@@ -1,3 +1,9 @@
+## Sobre el desarrollo
+
+Este proyecto fue desarrollado utilizando **Cursor** y asistencia de herramientas de inteligencia artificial para acelerar la escritura de código y la documentación.  
+Todas las decisiones técnicas, estructura del proyecto y personalizaciones fueron realizadas de forma manual, garantizando comprensión y control total sobre el funcionamiento del sistema.
+
+
 # 🚀 Guía de Despliegue en Render
 
 ## Pasos para desplegar en Render
